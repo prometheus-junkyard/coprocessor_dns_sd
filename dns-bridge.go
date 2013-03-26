@@ -23,10 +23,10 @@ var (
 )
 
 type config struct {
-	PrometheusUrl string `json:"prometheus_url"`
+	PrometheusUrl string `json:"prometheusUrl"`
 	Services      []struct {
 		Name    string `json:"name"`
-		JobName string `json:"job-name"`
+		JobName string `json:"jobName"`
 		Port    string `json:"port"`
 		Path    string `json:"path"`
 	} `json:"services"`

@@ -1,9 +1,9 @@
 {
-  "prometheus_url": "http://prometheus.example.com:9090",
+  "prometheusUrl": "http://prometheus.example.com:9090",
   "services": [
     {
       "name": "record-to-be-resolved",
-      "job-name": "name-in-prometheus",
+      "jobName": "name-in-prometheus",
       "port": "9090",
       "path": "metrics.json"
     }
