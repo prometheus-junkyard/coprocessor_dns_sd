@@ -9,17 +9,17 @@ import (
 	"log"
 	"net"
 	"os"
-	"time"
 	"os/signal"
 	"syscall"
+	"time"
 )
 
 var (
-	configFile   = flag.String("configFile", "dns-bridge.conf", "Path to config file.")
-	domainSuffix = flag.String("domainSuffix", "dyn.example.com", "Domain suffix.")
+	configFile     = flag.String("configFile", "dns-bridge.conf", "Path to config file.")
+	domainSuffix   = flag.String("domainSuffix", "dyn.example.com", "Domain suffix.")
 	updateInterval = flag.Int("updateInterval", 30, "Update interval in seconds.")
-	conf config
-	sig chan os.Signal
+	conf           config
+	sig            chan os.Signal
 )
 
 type config struct {
@@ -101,5 +101,3 @@ func main() {
 		update(client)
 	}
 }
-
-
