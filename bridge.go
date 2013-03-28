@@ -17,9 +17,7 @@ import (
 var (
 	configFile     = flag.String("configFile", "dns-bridge.conf", "Path to config file.")
 	domainSuffix   = flag.String("domainSuffix", "dyn.example.com", "Domain suffix.")
-	updateInterval = flag.Int("updateInterval", 30, "Update interval in seconds.")
-	conf           config
-	sig            chan os.Signal
+	updateInterval = flag.Duration("updateInterval", 30*time.Second, "Update interval in seconds.")
 )
 
 type config struct {
@@ -32,33 +30,19 @@ type config struct {
 	} `json:"services"`
 }
 
-func init() {
-	flag.Parse()
-	sig = make(chan os.Signal, 1)
-	signal.Notify(sig, syscall.SIGHUP)
-	go func() {
-		for _ = range sig {
-			err := readConfig()
-			if err != nil {
-				log.Printf("Couldn't reload config: %s", err)
-			}
-		}
-	}()
-}
-
-func readConfig() (err error) {
-	log.Printf("reading config %s", *configFile)
-	bytes, err := ioutil.ReadFile(*configFile)
+func (c *config) loadFrom(path string) (err error) {
+	log.Printf("Reading config %s", path)
+	bytes, err := ioutil.ReadFile(path)
 	if err != nil {
 		return
 	}
 
-	err = json.Unmarshal(bytes, &conf)
+	err = json.Unmarshal(bytes, c)
 	return
 }
 
-func update(client prometheus.Client) (err error) {
-	for _, service := range conf.Services {
+func (c config) update(client prometheus.Client) (err error) {
+	for _, service := range c.Services {
 		host := service.Name + "." + *domainSuffix
 		addrs, err := net.LookupIP(host)
 		if err != nil {
@@ -81,23 +65,46 @@ func update(client prometheus.Client) (err error) {
 
 		err = client.UpdateEndpoints(jobName, []prometheus.TargetGroup{targetGroup})
 		if err != nil {
-			log.Fatalf("Couldn't update prometheus: %s", err)
+			log.Fatalf("Couldn't update Prometheus: %s", err)
 		}
 	}
 	return
 }
 
+func (c config) handleSignals(path string) {
+	sig := make(chan os.Signal, 1)
+	signal.Notify(sig, syscall.SIGHUP)
+
+	for _ = range sig {
+		err := c.loadFrom(path)
+		if err != nil {
+			log.Printf("Couldn't reload config: %s", err)
+		}
+	}
+}
+
 func main() {
-	err := readConfig()
+	flag.Parse()
+
+	var (
+		config config
+		err    error
+	)
+
+	err = config.loadFrom(*configFile)
 	if err != nil {
 		log.Fatalf("Couldn't read config: %s", err)
 	}
 
-	client := prometheus.New(conf.PrometheusUrl)
-	ticker := time.Tick(time.Duration(*updateInterval) * time.Second)
-	update(client)
+	go config.handleSignals(*configFile)
+
+	var (
+		client = prometheus.New(config.PrometheusUrl)
+		ticker = time.Tick(*updateInterval)
+	)
+
 	for _ = range ticker {
-		log.Printf("updating endpoints.")
-		update(client)
+		log.Printf("Updating endpoints...")
+		config.update(client)
 	}
 }
