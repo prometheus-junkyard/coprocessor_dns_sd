@@ -1,0 +1,8 @@
+language: go
+
+before_script:
+ - go get -v github.com/prometheus/coprocessor_dns_sd
+
+script:
+ - go build -a -v github.com/prometheus/coprocessor_dns_sd/...
+ - go test -v github.com/prometheus/coprocessor_dns_sd/...
