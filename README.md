@@ -18,3 +18,6 @@ See [sample config](dns-bridge.conf.sample)
 
   * The source code is periodically indexed: [Prometheus DNS Service Discovery Coprocessor](http://godoc.org/github.com/prometheus/coprocessor_dns_sd).
   * All of the core developers are accessible via the [Prometheus Developers Mailinglist](https://groups.google.com/forum/?fromgroups#!forum/prometheus-developers).
+
+# Testing
+[![Build Status](https://travis-ci.org/prometheus/coprocessor_dns_sd.png?branch=master)](https://travis-ci.org/prometheus/coprocessor_dns_sd)
