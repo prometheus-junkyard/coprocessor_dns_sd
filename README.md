@@ -13,3 +13,8 @@ And a list of services/jobs to update from a DNS record:
 - path: path to the metrics json on the exporter.
 
 See [sample config](dns-bridge.conf.sample)
+
+# Getting Started
+
+  * The source code is periodically indexed: [Prometheus DNS Service Discovery Coprocessor](http://godoc.org/github.com/prometheus/dns-sd).
+  * All of the core developers are accessible via the [Prometheus Developers Mailinglist](https://groups.google.com/forum/?fromgroups#!forum/prometheus-developers).
